@@ -15,7 +15,7 @@
   "words-identified": [
     {
       "word": "initial",
-      "starting-pos": ["i", "j"],
+      "starting-pos": [2, 7],
       "direction": ["UP | DOWN | LEFT | RIGHT"],
       "identified-by": "playerID"
     }
