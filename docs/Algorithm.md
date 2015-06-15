@@ -24,13 +24,13 @@
 2. If not, check the word against dictionary.
   - If word is valid, add that to `words_identified` array.
   - Remove the same word from 'words_left' array, if exists.
-    - if `words_left` array is empty - i.e. all words have been identified, then game ends here.
+    - if `words_left` array is empty - i.e. all words have been identified, then game ends here. Set game state as `FINISHED`.
 3. Return appropriate message to user.
 4. Reset `pass_count` to 0.
 4. Notify next user for his turn.
 
 ### Pass turn
 1. Check if `pass_count == number of players`?
-  - If yes, game ends here.
+  - If yes, game ends here, set game state as `FINISHED`.
 2. `pass_count++`
 3. Notify next user for his turn.
