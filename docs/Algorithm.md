@@ -12,12 +12,14 @@
 1. Check if `playerID` is admin or not.
 2. Check number of users, it should be `>2 and <5`.
 3. Randomize players' list for random game play order.
-4. Initialize `words_left` array with initial 10 words.
+4. Initialize `words_left` array with initial 10 words, and `pass_count` to 0.
 5. Change game state to `STARTED`.
+6. Notify all players.
 
 ### Join a game
 1. Check existing number of players for the game.
 2. If it is < 5, add user to `players` array.
+3. Notify other players.
 
 ### Play turn
 1. Check if word is already identified.
@@ -27,7 +29,7 @@
     - if `words_left` array is empty - i.e. all words have been identified, then game ends here. Set game state as `FINISHED`.
 3. Return appropriate message to user.
 4. Reset `pass_count` to 0.
-4. Notify next user for his turn.
+5. Notify next user for his turn.
 
 ### Pass turn
 1. Check if `pass_count == number of players`?
