@@ -8,6 +8,9 @@ var bodyParser = require('body-parser');
 var routes = require('./routes/index');
 var users = require('./routes/users');
 
+var games = require('./routes/games');
+var player_moves = require('./routes/player-moves');
+
 var app = express();
 
 // view engine setup
@@ -24,6 +27,30 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', routes);
 app.use('/users', users);
+
+// get path params like gameID, playerID and body part and attach it to request param so that it can be used in next call.
+app.use('/games/:gameID/players/:playerID', attachParams);
+
+function attachParams(req, res, next) {
+    req.gameID = req.params.gameID;
+    req.playerID = req.params.playerID;
+
+    // save raw body-data part.
+    var data = '';
+    req.setEncoding('utf8');
+    req.on('data', function(chunk) { 
+       data += chunk;
+    });
+
+    req.on('end', function() {
+        req.body = data;
+        next();
+    });
+};
+
+// set specific routes for different functions.
+app.use('/games/:gameID/players/:playerID', player_moves);
+app.use('/games', games);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
