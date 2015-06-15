@@ -3,7 +3,8 @@
 1. `POST /games/create`
   - *Description* : Create a new game on server.
   - *Parameters* : `playerID`
-  - *Returns* : `gameID`
+  - *Returns* : 
+	- `200`: `gameID`
 
 2. `POST /games/{gameID}/start`
   - *Description*: Start a game already created
