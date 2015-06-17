@@ -3,14 +3,34 @@ var db = require('mongoskin').db('mongodb://localhost:27017/GameServerChallenge'
 var gameCreator = require('./create-game');
 var router = express.Router();
 
-var collection = db.collection('games');
+var gameDB = db.collection('games');
 
 /* create a new game */
 router.post('/create', function(req, res, next) {
     var playerID = req.param('playerID');
-    var grid = gameCreator.generateGrid(['some','sample','words','as','input'], 15);
-    console.log(gameCreator.toString(grid));
-    res.send("Create game. User: " + playerID);
+    if(playerID && playerID !== "")
+    {
+        var words = ['some','sample','words','as','input'];
+        var grid = gameCreator.generateGrid(words, 15);
+        var gameID = Date.now();
+
+        var gameObject = {};
+        gameObject.grid = grid;
+        gameObject.admin = playerID;
+        gameObject.gameID = gameID;
+
+        gameDB.insert(gameObject, function(err) {
+            if(err){
+                res.status(500);
+                res.send("Internal server error");
+            }
+        });
+        console.log(gameCreator.toString(grid));
+        res.json(gameObject);
+    } else {
+        res.status(400);
+        res.send("Request parameter missing.");
+    }
 });
 
 /* start a new game */
@@ -23,7 +43,23 @@ router.post('/:gameID/start', function(req, res, next) {
 /* get game details */
 router.get('/:gameID', function(req, res, next) {
     var gameID = req.param('gameID');
-    res.send("Game details. Game: " + gameID);
+    if(gameID && gameID !== "")
+    {
+        console.log('gameID' + gameID);
+        gameDB.find().toArray(function(err, result) {
+            console.log(result);
+            if (err)
+                throw err;
+            if (!result || result == "") {
+                res.status(404);
+                res.send("gameID not found");
+            }
+            res.json(result);
+        })
+    } else {
+        res.status(400);
+        res.send("Request parameter missing.");
+    }
 });
 
 module.exports = router;
