@@ -46,15 +46,16 @@ router.get('/:gameID', function(req, res, next) {
     if(gameID && gameID !== "")
     {
         console.log('gameID' + gameID);
-        gameDB.find().toArray(function(err, result) {
+        gameDB.find({gameID: parseInt(gameID)}).toArray(function(err, result) {
             console.log(result);
             if (err)
                 throw err;
-            if (!result || result == "") {
+            if (!result || result == "" || result.length === 0) {
                 res.status(404);
                 res.send("gameID not found");
+            } else {
+                res.json(result);
             }
-            res.json(result);
         })
     } else {
         res.status(400);
