@@ -36,3 +36,11 @@
   - If yes, game ends here, set game state as `FINISHED`.
 2. `pass_count++`
 3. Notify next user for his turn.
+
+###Create grid
+1. Choose a word from 10 dictionary words.
+2. Generate random `i` and `j` as start position.
+3. Chose random direction.
+4. Check if word can fit at chosen position in selected direction.
+  - If successful, go to `step 1` and select new word.
+  - If not, go to `step 2` and chose some other location.
