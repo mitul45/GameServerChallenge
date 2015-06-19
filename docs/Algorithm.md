@@ -38,6 +38,21 @@
 3. Notify next user for his turn.
 
 ###Create grid
+
+##### Using Backtracking
+- Select a word from the list.
+  - Chose a random direction between `HORIZONTAL` and `VERTICAL`
+    - Choose a random number for row/column which has not been tried.
+      - Find number of countinuous empty spaces in chosen row/column.
+        - If number of empty spaces > length of word
+          - Chose direction i.e. L2R, or R2L.
+            - Add word to grid, go to first step.
+        - Else chose a new random row/column.
+    - If all rows/columns are exhausted, chose remaining option between `HORIZONTAL` and `VERTICAL`.
+- Stop once all words have been added to grid.
+
+##### Using Random
+
 1. Choose a word from 10 dictionary words.
 2. Generate random `i` and `j` as start position.
 3. Chose random direction.
