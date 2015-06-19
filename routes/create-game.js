@@ -4,6 +4,18 @@ var generateGrid = function(arr, size) {
         var word = arr[i];
         addWord(word, grid, size);
     }
+    return fillRemainingPlaces(grid);
+}
+
+var fillRemainingPlaces = function(grid) {
+    var size = grid.length;
+    for (var i = 0; i < size; i++) {
+        for (var j = 0; j < size; j++) {
+            if(grid[i][j] === 0)
+                // fill remaining place with random lower case characters.
+                grid[i][j] = String.fromCharCode(97 + randomInt(0, 26));
+        }
+    }
     return grid;
 }
 
