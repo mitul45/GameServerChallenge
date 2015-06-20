@@ -14,7 +14,6 @@ router.post('/create', function(req, res, next) {
         var grid = gameCreator.generateGrid(words, 15);
 
         var game = getGameObject(playerID, grid, words);
-        console.log("game object: " + game);
 
         gameDB.insert(game, function(err) {
             if(err){
@@ -22,7 +21,6 @@ router.post('/create', function(req, res, next) {
                 res.send("Internal server error");
             }
         });
-        console.log(gameCreator.toString(grid));
         res.status(200);
         res.json(game);
     } else {
@@ -74,7 +72,6 @@ router.get('/:gameID', function(req, res, next) {
     var gameID = req.param('gameID');
     if(gameID && gameID !== "")
     {
-        console.log(gameID);
         getGameObjectFromDB(gameID, function(game) {
             if(game === null) {
                 res.status(404);
