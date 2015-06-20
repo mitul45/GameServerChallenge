@@ -4,6 +4,7 @@ var games = db.collection('games');
 var insert = function(game, onSuccess, onFailure) {
 	games.insert(game, function(err) {
 		if (err) {
+			console.log(err);
 			onFailure();
 			return;
 		}
