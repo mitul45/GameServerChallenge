@@ -1,5 +1,4 @@
-var db = require('mongoskin').db('mongodb://mitul:mitul123@ds053688.mongolab.com:53688/heroku_7jnghtr0
-');
+var db = require('mongoskin').db('mongodb://mitul:mitul123@ds053688.mongolab.com:53688/heroku_7jnghtr0');
 var games = db.collection('games');
 
 var insert = function(game, onSuccess, onFailure) {
