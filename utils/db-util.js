@@ -39,7 +39,6 @@ var updateGameObject = function(game, onSuccess, onFailure) {
 
 module.exports = {
 	get: get,
-	update: update,
 	insert: insert,
 	updateGameObject: updateGameObject
 }

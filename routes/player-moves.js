@@ -8,7 +8,7 @@ var db = require('../utils/db-util');
 router.post('/play', function(req, res, next) {
     var gameID = req.gameID;
     var playerID = req.playerID;
-    var body = req.body;
+    var body = JSON.parse(req.body);
     res.send("Play turn. User: "+ playerID + ", Game: " + gameID + ", Body: " + body);
 });
 
@@ -45,7 +45,7 @@ router.post('/pass', function(req, res, next) {
             return;
         });
     }, function() {
-        res.send(500, {errorMessage: "Some error occured while updating DB."});
+        res.send(404, {errorMessage: "gameID not found"});
         return;
     });
 });
@@ -72,7 +72,7 @@ router.post('/join', function(req, res, next) {
             return;
         });
     }, function() {
-        res.send(500, {errorMessage: "Some error occured while updating DB."});
+        res.send(404, {errorMessage: "gameID not found."});
         return;
     });
 });
