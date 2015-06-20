@@ -1,32 +1,50 @@
 var express = require('express');
-var db = require('mongoskin').db('mongodb://localhost:27017/GameServerChallenge');
-    var gameCreator = require('./create-game');
+var grid_creator = require('../utils/create-grid');
+var request_validator = require('../utils/request-validator');
+var db = require('../utils/db-util')
+
 var router = express.Router();
 
-var gameDB = db.collection('games');
+/* get game details */
+router.get('/:gameID', function(req, res, next) {
+    var missingParams = request_validator.missingParams(req, ['gameID']);
+
+    if(missingParams.length > 0){
+        res.send(400, {errorMessage: "Missing request parameter " + missingParams});
+        return;
+    }
+
+    var gameID = req.param('gameID');
+    db.get(gameID, function(game) {
+        res.send(200, game);
+        return;
+    }, function() {
+        res.send(404, {errorMessage: "gameID not found."});
+        return;
+    });
+});
 
 /* create a new game */
 router.post('/create', function(req, res, next) {
-    var playerID = req.param('playerID');
-    if(playerID && playerID !== "")
-    {
-        var words = ['some','sample','words','as','input'];
-        var grid = gameCreator.generateGrid(words, 15);
+    var missingParams = request_validator.missingParams(req, ['playerID']);
 
-        var game = getGameObject(playerID, grid, words);
-
-        gameDB.insert(game, function(err) {
-            if(err){
-                res.status(500);
-                res.send("Internal server error");
-            }
-        });
-        res.status(200);
-        res.json(game);
-    } else {
-        res.status(400);
-        res.send("Request parameter missing.");
+    if(missingParams.length > 0){
+        res.send(400, {errorMessage: "Missing request parameter " + missingParams});
+        return;
     }
+    var playerID = req.param('playerID');
+    var words = ['some','sample','words','as','input'];
+    var grid = grid_creator.generateGrid(words, 15);
+
+    var game = getGameObject(playerID, grid, words);
+
+    db.insert(game, function() {
+        res.send(200, {gameID: game.gameID});
+        return;
+    }, function () {
+        res.send(500, {errorMessage: "Some error occured while updating the DB."});
+        return;        
+    });
 });
 
 function getGameObject(admin, grid, words) {
@@ -44,56 +62,46 @@ function getGameObject(admin, grid, words) {
 
 /* start a new game */
 router.post('/:gameID/start', function(req, res, next) {
+    var missingParams = request_validator.missingParams(req, ['playerID', 'gameID'])
+    
+    // request parameter missing.
+    if(missingParams.length > 0) {
+        res.send(400, {errorMessage: "Missing request parameter " + missingParams});
+        return;
+    }
     var playerID = req.param('playerID');
     var gameID = req.param('gameID');
-    if(gameID && gameID !== "" && playerID && playerID !== "")
-    {
-        getGameObjectFromDB(gameID, function(game) {
-            if(game === null) {
-                res.status(404);
-                res.send("gameID not found");
-            } else {
-                if(playerID !== game.admin){
-                    res.status(400);
-                    res.send("You are not the admin for this game.");
-                }
-                // TODO: check number of players and update game state as STARTED.
-            }
-        });
-    } else {
-        res.status(400);
-        res.send("Request parameter missing.");
-    }
-    res.send("Start game. User: " + playerID + ", Game: " + gameID);
-});
+    var onSuccess =  function(game) {
+        if(playerID !== game.admin){
+            res.send(400, {errorMessage: "You are not creator of this game."});
+            return;
+        }
 
-/* get game details */
-router.get('/:gameID', function(req, res, next) {
-    var gameID = req.param('gameID');
-    if(gameID && gameID !== "")
-    {
-        getGameObjectFromDB(gameID, function(game) {
-            if(game === null) {
-                res.status(404);
-                res.send("gameID not found");
-            } else {
-                res.status(200);
-                res.json(game);
-            }
-        });
-    } else {
-        res.status(400);
-        res.send("Request parameter missing.");
-    }
-});
+        if(game.players.length < 2) {
+            res.send(500, {errorMessage: "Not enough players to start the game."});
+            return;
+        }
 
-function getGameObjectFromDB(gameID, onSuccess) {
-    gameDB.findOne({gameID: parseInt(gameID)}, function(err, result) {
-        if(result && result !== '')
-            onSuccess(result);
-        else
-            onSuccess(null);
-    });
-}
+        if(game.players.length > 5) {
+            res.send(500, {errorMessage: "More than 5 players have joined the game."});
+            return;
+        }
+
+        // change game state as 'STARTED'.
+        game.state = 'STARTED';
+        db.update(gameID, 'state', 'STARTED', function() {
+            res.send(200, game);
+            return;
+        }, function() {
+            res.send(500, {errorMessage: "Some error occured while updating DB."});
+            return;
+        });
+    }
+
+    var onFailure = function() {
+        res.send(404, {errorMessage: "gameID not found."});
+    }
+    db.get(gameID, onSuccess, onFailure);
+});
 
 module.exports = router;
