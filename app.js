@@ -7,6 +7,7 @@ var bodyParser = require('body-parser');
 
 var games = require('./routes/games');
 var player_moves = require('./routes/player-moves');
+var request_validator = require('./utils/request-validator');
 
 var app = express();
 
@@ -30,6 +31,7 @@ app.use('/games/:gameID/players/:playerID', player_moves);
 app.use('/games', games);
 
 function attachParams(req, res, next) {
+    
     req.gameID = req.params.gameID;
     req.playerID = req.params.playerID;
 

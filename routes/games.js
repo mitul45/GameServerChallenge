@@ -26,6 +26,7 @@ router.get('/:gameID', function(req, res, next) {
 
 /* create a new game */
 router.post('/create', function(req, res, next) {
+    var size = 15;
     var missingParams = request_validator.missingParams(req, ['playerID']);
 
     if(missingParams.length > 0){
@@ -34,31 +35,31 @@ router.post('/create', function(req, res, next) {
     }
     var playerID = req.param('playerID');
     var words = ['some','sample','words','as','input'];
-    var grid = grid_creator.generateGrid(words, 15);
+    var acceptCriteria = function(word) {
+        var char_code;
+        if(word.length > 15)
+            return false;
+        for(var i = 0; i < word.length; i++) {
+            char_code = word.charCodeAt(i);
+            if(char_code < 97 || char_code > 122)
+                return false;
+        }
+        return true;
+    }
+    grid_creator.getDictionaryWords(size + 10, acceptCriteria, function (words) {
+        words = grid_creator.sortWords(words);
+        var grid = grid_creator.generateGrid(words, size);
+        var game = getGameObject(playerID, grid, words);
 
-    var game = getGameObject(playerID, grid, words);
-
-    db.insert(game, function() {
-        res.send(200, {gameID: game.gameID});
-        return;
-    }, function () {
-        res.send(500, {errorMessage: "Some error occured while updating the DB."});
-        return;        
-    });
+        db.insert(game, function() {
+            res.send(200, {gameID: game.gameID});
+            return;
+        }, function () {
+            res.send(500, {errorMessage: "Some error occured while updating the DB."});
+            return;        
+        });
+    }
 });
-
-function getGameObject(admin, grid, words) {
-    var obj = {};
-    obj.gameID = Date.now();
-    obj.admin = admin;
-    obj.state = 'CREATED';
-    obj.players = [admin];
-    obj.grid = grid;
-    obj.words_left = words;
-    obj.words_identified = [];
-
-    return obj;
-}
 
 /* start a new game */
 router.post('/:gameID/start', function(req, res, next) {
@@ -103,5 +104,18 @@ router.post('/:gameID/start', function(req, res, next) {
     }
     db.get(gameID, onSuccess, onFailure);
 });
+
+function getGameObject(admin, grid, words) {
+    var obj = {};
+    obj.gameID = Date.now();
+    obj.admin = admin;
+    obj.state = 'CREATED';
+    obj.players = [admin];
+    obj.grid = grid;
+    obj.words_left = words;
+    obj.words_identified = [];
+
+    return obj;
+}
 
 module.exports = router;

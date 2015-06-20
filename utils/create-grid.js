@@ -1,34 +1,18 @@
-var generateGrid = function(arr, size) {
+var fs = require('fs');
+
+var generateGrid = function(words, size) {
     var grid = createGrid(size);
-    for(var i = 0; i < arr.length; i++) {
-        var word = arr[i];
-        addWord(word, grid, size);
+    var words_added = 0;
+    var word;
+    for(var i = 0; i < words.length; i++) {
+        word = words[i];
+        if(addWord(word, grid, size)) {
+            words_added++;
+            if(words_added === size)
+                break;
+        }
     }
     return fillRemainingPlaces(grid);
-}
-
-var fillRemainingPlaces = function(grid) {
-    var size = grid.length;
-    for (var i = 0; i < size; i++) {
-        for (var j = 0; j < size; j++) {
-            if(grid[i][j] === 0)
-                // fill remaining place with random lower case characters.
-                grid[i][j] = String.fromCharCode(97 + randomInt(0, 26));
-        }
-    }
-    return grid;
-}
-
-var toString = function(grid) {
-    var size = grid.length;
-    var str = "";
-    for (var i = 0; i < size; i++) {
-        for (var j = 0; j < size; j++) {
-            str += " " + grid[i][j] + " ";
-        }
-        str += "\n";
-    }
-    return str;
 }
 
 var addWord = function(word, grid, size) {
@@ -138,6 +122,77 @@ var createGrid = function(size) {
     return grid;
 }
 
+var fillRemainingPlaces = function(grid) {
+    var size = grid.length;
+    for (var i = 0; i < size; i++) {
+        for (var j = 0; j < size; j++) {
+            if(grid[i][j] === 0)
+                // fill remaining place with random lower case characters.
+                grid[i][j] = String.fromCharCode(97 + randomInt(0, 26));
+        }
+    }
+    return grid;
+}
+
+var sortWords = function(words) {
+    var wordsObj = {};
+    var wordsLen = [];
+    for (var i = 0; i <  words.length; i++) {
+        if(wordsObj[words[i].length])
+            wordsObj[words[i].length].push(words[i]);
+        else
+            wordsObj[words[i].length] = [words[i]];
+        wordsLen.push(words[i].length);
+    }
+    wordsLen = wordsLen.sort(function(a, b) {return b-a;});
+    for (var i = 0; i <  words.length; i++) {
+        words[i] = wordsObj[wordsLen[i]].pop();
+    }
+    return words;
+}
+
+var toString = function(grid) {
+    var size = grid.length;
+    var str = "";
+    for (var i = 0; i < size; i++) {
+        for (var j = 0; j < size; j++) {
+            str += " " + grid[i][j] + " ";
+        }
+        str += "\n";
+    }
+    return str;
+}
+
+var getDictionaryWords = function(n, canAcceptWord, callback) {
+    var words = [];
+    var dictionary_path = '/usr/share/dict/words';
+    var stream = fs.createReadStream(dictionary_path, {
+        flags: 'r',
+        encoding: 'utf-8',
+        fd: null,
+        mode: 0666
+    });
+    var fileData = '';
+    stream.on('data', function(data){
+        fileData += data;
+    });
+
+    stream.on('error', function(){
+        callback(null);
+    });
+
+    stream.on('end', function(){
+        var lines = fileData.split('\n');
+        var word;
+        while(words.length < n) {
+            word = lines[randomInt(0, lines.length)];
+            if(canAcceptWord(word) && words.indexOf(word) === -1)
+                words.push(word);
+        }
+        callback(words);
+    });
+}
+
 // gives a random floating point number between low and high.
 var random = function(low, high) {
     return Math.random() * (high - low) + low;
@@ -150,5 +205,6 @@ var randomInt = function(low, high) {
 
 module.exports = {
     generateGrid: generateGrid,
-    toString: toString
+    toString: toString,
+    sortWords: sortWords
 }
