@@ -23,6 +23,7 @@ stream.on('end', function(){
 });
 
 var getARandomWord = function() {
+    console.log(words);
     return words[randomInt(0, size)];
 }
 
