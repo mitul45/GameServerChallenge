@@ -22,6 +22,12 @@ router.post('/pass', function(req, res, next) {
             return;            
         }
 
+        if(game.players[game.current_player] !== playerID) {
+            res.send(400, {errorMessage: "It's not your turn, current player: " + game.players[game.current_player] + "."});
+            return;            
+        }
+
+        game.pass_count++;
         if(game.pass_count === game.players.length) {
             // game has ended.
             game.state = 'FINISHED';
@@ -35,7 +41,6 @@ router.post('/pass', function(req, res, next) {
             return;
         }
 
-        game.pass_count++;
         game.current_player = (game.current_player + 1) % game.players.length;
         db.updateGameObject(game, function() {
             res.send(200, {Message: "Next Player: " + game.players[game.current_player]});
