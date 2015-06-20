@@ -1,5 +1,6 @@
 var fs = require('fs');
-var dictionary_path = '/usr/share/dict/words';
+// var dictionary_path = '/usr/share/dict/words';
+var dictionary_path = 'dict-words';
 var words, size;
 
 var stream = fs.createReadStream(dictionary_path, {
@@ -23,7 +24,6 @@ stream.on('end', function(){
 });
 
 var getARandomWord = function() {
-    console.log(words);
     return words[randomInt(0, size)];
 }
 
