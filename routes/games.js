@@ -48,7 +48,9 @@ router.post('/create', function(req, res, next) {
     }
     grid_creator.getDictionaryWords(size + 10, acceptCriteria, function (words) {
         words = grid_creator.sortWords(words);
-        var grid = grid_creator.generateGrid(words, size);
+        var response = grid_creator.generateGrid(words, size, 10);
+        var grid = response['grid'];
+        words = response['words'];
         var game = getGameObject(playerID, grid, words);
 
         db.insert(game, function() {
@@ -58,7 +60,7 @@ router.post('/create', function(req, res, next) {
             res.send(500, {errorMessage: "Some error occured while updating the DB."});
             return;        
         });
-    }
+    });
 });
 
 /* start a new game */

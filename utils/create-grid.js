@@ -1,18 +1,20 @@
 var fs = require('fs');
 
-var generateGrid = function(words, size) {
+var generateGrid = function(words, size, number_of_words) {
     var grid = createGrid(size);
     var words_added = 0;
+    var words_used = [];
     var word;
     for(var i = 0; i < words.length; i++) {
         word = words[i];
         if(addWord(word, grid, size)) {
             words_added++;
-            if(words_added === size)
+            words_used.push(word);
+            if(words_added === number_of_words)
                 break;
         }
     }
-    return fillRemainingPlaces(grid);
+    return {grid: fillRemainingPlaces(grid), words: words_used};
 }
 
 var addWord = function(word, grid, size) {
@@ -206,5 +208,6 @@ var randomInt = function(low, high) {
 module.exports = {
     generateGrid: generateGrid,
     toString: toString,
-    sortWords: sortWords
+    sortWords: sortWords,
+    getDictionaryWords: getDictionaryWords
 }
