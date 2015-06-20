@@ -14,7 +14,7 @@ stream.on('data', function(data){
 });
 
 stream.on('error', function(){
-    callback(null);
+    console.log("Error while opening dictionary.");
 });
 
 stream.on('end', function(){
