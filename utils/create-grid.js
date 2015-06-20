@@ -1,4 +1,5 @@
 var fs = require('fs');
+var dictionary = require('./dictionary');
 
 var generateGrid = function(words, size, number_of_words) {
     var grid = createGrid(size);
@@ -166,33 +167,13 @@ var toString = function(grid) {
 }
 
 var getDictionaryWords = function(n, canAcceptWord, callback) {
-    var words = [];
-    var dictionary_path = '/usr/share/dict/words';
-    var stream = fs.createReadStream(dictionary_path, {
-        flags: 'r',
-        encoding: 'utf-8',
-        fd: null,
-        mode: 0666
-    });
-    var fileData = '';
-    stream.on('data', function(data){
-        fileData += data;
-    });
-
-    stream.on('error', function(){
-        callback(null);
-    });
-
-    stream.on('end', function(){
-        var lines = fileData.split('\n');
-        var word;
-        while(words.length < n) {
-            word = lines[randomInt(0, lines.length)];
-            if(canAcceptWord(word) && words.indexOf(word) === -1)
-                words.push(word);
-        }
-        callback(words);
-    });
+    var words = [], word;
+    while(words.length < n) {
+        word = dictionary.getARandomWord();
+        if(canAcceptWord(word) && words.indexOf(word) === -1)
+            words.push(word);
+    }
+    callback(words);
 }
 
 // gives a random floating point number between low and high.

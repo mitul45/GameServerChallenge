@@ -34,7 +34,6 @@ router.post('/create', function(req, res, next) {
         return;
     }
     var playerID = req.param('playerID');
-    var words = ['some','sample','words','as','input'];
     var acceptCriteria = function(word) {
         var char_code;
         if(word.length > 15)
@@ -90,9 +89,14 @@ router.post('/:gameID/start', function(req, res, next) {
             return;
         }
 
+        if(game.state !== 'CREATED') {
+            res.send(500, {errorMessage: "Game already started."});
+            return;
+        }
+
         // change game state as 'STARTED'.
         game.state = 'STARTED';
-        db.update(gameID, 'state', 'STARTED', function() {
+        db.updateGameObject(game, function() {
             res.send(200, game);
             return;
         }, function() {
@@ -116,6 +120,8 @@ function getGameObject(admin, grid, words) {
     obj.grid = grid;
     obj.words_left = words;
     obj.words_identified = [];
+    obj.pass_count = 0;
+    obj.current_player = 0;
 
     return obj;
 }

@@ -16,9 +16,7 @@ var get = function (gameID, onSuccess, onFailure) {
 	    if(err) {
 	    	onFailure(); 
 	    	return;
-	    }
-	    
-	    if(result && result !== '') {
+		} else if(result && result !== '') {
 	        onSuccess(result); 
 	        return;
 	    } else {
@@ -28,9 +26,10 @@ var get = function (gameID, onSuccess, onFailure) {
     })
 }
 
-var update = function (gameID, key, value, onSuccess, onFailure) {
-	games.update({gameID :parseInt(gameID)}, {$set: {key: value}}, function(err, result) {
-		if(err) { 
+var updateGameObject = function(game, onSuccess, onFailure) {
+	delete game['_id'];
+	games.update({'gameID': parseInt(game.gameID)}, game, function(err, result) {
+		if(err){
 			onFailure();
 			return;
 		}
@@ -41,5 +40,6 @@ var update = function (gameID, key, value, onSuccess, onFailure) {
 module.exports = {
 	get: get,
 	update: update,
-	insert: insert
+	insert: insert,
+	updateGameObject: updateGameObject
 }
