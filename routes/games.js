@@ -52,6 +52,7 @@ router.post('/create', function(req, res, next) {
         words = response['words'];
         var game = getGameObject(playerID, grid, words);
 
+        console.log(game);
         db.insert(game, function() {
             res.send(200, {gameID: game.gameID});
             return;
