@@ -40,7 +40,7 @@
 ###Create grid
 
 ##### Using Backtracking
-- Select a word from the list.
+- Select next longest word from the list.
   - Chose a random direction between `HORIZONTAL` and `VERTICAL`
     - Choose a random number for row/column which has not been tried.
       - Find number of countinuous empty spaces in chosen row/column.
