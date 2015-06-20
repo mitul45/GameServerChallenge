@@ -119,7 +119,7 @@ function getGameObject(admin, grid, words) {
     obj.players = [admin];
     obj.grid = grid;
     obj.words_left = words;
-    obj.words_identified = [];
+    obj.words_identified = {};
     obj.pass_count = 0;
     obj.current_player = 0;
 
