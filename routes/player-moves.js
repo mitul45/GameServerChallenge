@@ -13,7 +13,6 @@ router.post('/play', function(req, res, next) {
     var word = body['word'];
     var starting_location = body['starting-location'];
     var direction = body['direction'];
-    console.log("play with: " + body);
     db.get(gameID, function (game) {
         if(game.state !== 'STARTED') {
             res.send(400, {errorMessage: "Game is in " + game.state + " state."});
