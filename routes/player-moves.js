@@ -15,12 +15,12 @@ router.post('/play', function(req, res, next) {
     var direction = body['direction'];
     db.get(gameID, function (game) {
         if(game.state !== 'STARTED') {
-            res.send(400, {errorMessage: "Game is in " + game.state + " state."});
+            res.status(400).json({errorMessage: "Game is in " + game.state + " state."});
             return;            
         }
 
         if(game.players[game.current_player] !== playerID) {
-            res.send(400, {errorMessage: "It's not your turn, current player: " + game.players[game.current_player] + "."});
+            res.status(400).json({errorMessage: "It's not your turn, current player: " + game.players[game.current_player] + "."});
             return;            
         }
 
@@ -29,7 +29,7 @@ router.post('/play', function(req, res, next) {
         game.current_player = (game.current_player + 1) % game.players.length;
         // check if word is already identified.
         if(game.words_identified[word]) {
-            res.send(400, {errorMessage: "Word already identified.", 
+            res.status(400).json({errorMessage: "Word already identified.", 
                 Word: game.words_identified[word],
                 Message: "Next Player: " + game.players[game.current_player]});
             db.updateGameObject(game, function() {
@@ -42,7 +42,7 @@ router.post('/play', function(req, res, next) {
 
         // check if the word is dictionary word or not.
         if(!dictionary.isDictionaryWord(word)) {
-            res.send(400, {errorMessage: "Not a dictionary word."});
+            res.status(400).json({errorMessage: "Not a dictionary word."});
             return;
         }
 
@@ -64,10 +64,10 @@ router.post('/play', function(req, res, next) {
         if(game.words_left.length === 0) {
             game.state = 'FINISHED';
             db.updateGameObject(game, function() {
-                res.send(200, {Message: "Game finished."});
+                res.status(200).json({message: "Game finished."});
                 return;
             }, function() {
-                res.send(500, {errorMessage: "Some error occured while updating DB."});
+                res.status(500).json({errorMessage: "Some error occured while updating DB."});
                 return;
             });
             return;
@@ -75,14 +75,14 @@ router.post('/play', function(req, res, next) {
 
         // next player.
         db.updateGameObject(game, function() {
-            res.send(200, {Word: game.words_identified[word], Message: "Next Player: " + game.players[game.current_player]});
+            res.status(200).json({word: game.words_identified[word], message: "Next Player: " + game.players[game.current_player]});
             return;
         }, function() {
-            res.send(500, {errorMessage: "Some error occured while updating DB."});
+            res.status(500).json({errorMessage: "Some error occured while updating DB."});
             return;
         });
     }, function() {
-        res.send(404, {errorMessage: "gameID not found"});
+        res.status(404).json({errorMessage: "gameID not found"});
         return;
     });
 
@@ -94,12 +94,12 @@ router.post('/pass', function(req, res, next) {
     var playerID = req.playerID;
     db.get(gameID, function (game) {
         if(game.state !== 'STARTED') {
-            res.send(400, {errorMessage: "Game is in " + game.state + " state."});
+            res.status(400).json({errorMessage: "Game is in " + game.state + " state."});
             return;            
         }
 
         if(game.players[game.current_player] !== playerID) {
-            res.send(400, {errorMessage: "It's not your turn, current player: " + game.players[game.current_player] + "."});
+            res.status(400).json({errorMessage: "It's not your turn, current player: " + game.players[game.current_player] + "."});
             return;            
         }
 
@@ -109,10 +109,10 @@ router.post('/pass', function(req, res, next) {
             // game has ended.
             game.state = 'FINISHED';
             db.updateGameObject(game, function() {
-                res.send(200, {Message: "Game finished."});
+                res.status(200).json({message: "Game finished."});
                 return;
             }, function() {
-                res.send(500, {errorMessage: "Some error occured while updating DB."});
+                res.status(500).json({errorMessage: "Some error occured while updating DB."});
                 return;
             });
             return;
@@ -120,14 +120,14 @@ router.post('/pass', function(req, res, next) {
 
         game.current_player = (game.current_player + 1) % game.players.length;
         db.updateGameObject(game, function() {
-            res.send(200, {Message: "Next Player: " + game.players[game.current_player]});
+            res.status(200).json({message: "Next Player: " + game.players[game.current_player]});
             return;
         }, function() {
-            res.send(500, {errorMessage: "Some error occured while updating DB."});
+            res.status(500).json({errorMessage: "Some error occured while updating DB."});
             return;
         });
     }, function() {
-        res.send(404, {errorMessage: "gameID not found"});
+        res.status(404).json({errorMessage: "gameID not found"});
         return;
     });
 });
@@ -138,23 +138,23 @@ router.post('/join', function(req, res, next) {
     var playerID = req.playerID;
     db.get(gameID, function(game) {
         if(game.players.length >= 5) {
-            res.send(500, {errorMessage: "This game has already 5 players."});
+            res.status(500).json({errorMessage: "This game has already 5 players."});
             return;
         }
         if(game.state !== 'CREATED') {
-            res.send(400, {errorMessage: "Game is in " + game.state + " state."});
+            res.status(400).json({errorMessage: "Game is in " + game.state + " state."});
             return;
         }
         game.players.push(playerID);
         db.updateGameObject(game, function() {
-            res.send(200, {Players: game.players});
+            res.status(200).json({players: game.players});
             return;
         }, function() {
-            res.send(500, {errorMessage: "Some error occured while updating DB."});
+            res.status(500).json({errorMessage: "Some error occured while updating DB."});
             return;
         });
     }, function() {
-        res.send(404, {errorMessage: "gameID not found."});
+        res.status(404).json({errorMessage: "gameID not found."});
         return;
     });
 });

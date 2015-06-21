@@ -81,7 +81,7 @@ router.post('/:gameID/start', function(req, res, next) {
     
     // check if request parameter is missing.
     if(missingParams.length > 0) {
-        res.send(400, {errorMessage: "Missing request parameter " + missingParams});
+        res.status(400).json({errorMessage: "Missing request parameter " + missingParams});
         return;
     }
     var playerID = req.param('playerID');
@@ -92,24 +92,24 @@ router.post('/:gameID/start', function(req, res, next) {
 
         // only admin can start the game.
         if(playerID !== game.admin){
-            res.send(400, {errorMessage: "You are not creator of this game."});
+            res.status(400).json({errorMessage: "You are not creator of this game."});
             return;
         }
 
         // number of players should be > 2 and < 5
         if(game.players.length < 2) {
-            res.send(500, {errorMessage: "Not enough players to start the game."});
+            res.status(500).json({errorMessage: "Not enough players to start the game."});
             return;
         }
 
         if(game.players.length > 5) {
-            res.send(500, {errorMessage: "More than 5 players have joined the game."});
+            res.status(500).json({errorMessage: "More than 5 players have joined the game."});
             return;
         }
 
         // game should not have been started already.
         if(game.state !== 'CREATED') {
-            res.send(500, {errorMessage: "Game already started."});
+            res.status(500).json({errorMessage: "Game already started."});
             return;
         }
 
@@ -118,16 +118,16 @@ router.post('/:gameID/start', function(req, res, next) {
 
         // update db.
         db.updateGameObject(game, function() {
-            res.send(200, game);
+            res.status(200).json(game);
             return;
         }, function() {
-            res.send(500, {errorMessage: "Some error occured while updating DB."});
+            res.status(500).json({errorMessage: "Some error occured while updating DB."});
             return;
         });
     }
 
     var onFailure = function() {
-        res.send(404, {errorMessage: "gameID not found."});
+        res.status(404).json({errorMessage: "gameID not found."});
     }
     db.get(gameID, onSuccess, onFailure);
 });
