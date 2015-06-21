@@ -26,7 +26,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 // get path params like gameID, playerID and body part and attach it to request param so that it can be used in next call.
 app.use('/games/:gameID/players/:playerID', attachParams);
 
-// set specific routes for different functions.
+// set specific routes for different endpoints.
 app.use('/games/:gameID/players/:playerID', player_moves);
 app.use('/games', games);
 
@@ -42,6 +42,7 @@ function attachParams(req, res, next) {
        data += chunk;
     });
 
+    // save request data for next functions.
     req.on('end', function() {
         req.body = data;
         next();

@@ -27,6 +27,7 @@ router.post('/play', function(req, res, next) {
         // reset pass count.
         game.pass_count = 0;
         game.current_player = (game.current_player + 1) % game.players.length;
+        // check if word is already identified.
         if(game.words_identified[word]) {
             res.send(400, {errorMessage: "Word already identified.", 
                 Word: game.words_identified[word],
@@ -102,6 +103,7 @@ router.post('/pass', function(req, res, next) {
             return;            
         }
 
+        // game ends when all plyaers chooses to pass his/her turn.
         game.pass_count++;
         if(game.pass_count === game.players.length) {
             // game has ended.

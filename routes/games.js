@@ -7,14 +7,17 @@ var router = express.Router();
 
 /* get game details */
 router.get('/:gameID', function(req, res, next) {
+
     var missingParams = request_validator.missingParams(req, ['gameID']);
 
+    // check if the request parameter is missing or not.
     if(missingParams.length > 0){
         res.send(400, {errorMessage: "Missing request parameter " + missingParams});
         return;
     }
-
     var gameID = req.param('gameID');
+
+    // get game object from db.
     db.get(gameID, function(game) {
         res.send(200, game);
         return;
@@ -29,11 +32,14 @@ router.post('/create', function(req, res, next) {
     var size = 15;
     var missingParams = request_validator.missingParams(req, ['playerID']);
 
+    // check request parameter.
     if(missingParams.length > 0){
         res.send(400, {errorMessage: "Missing request parameter " + missingParams});
         return;
     }
     var playerID = req.param('playerID');
+    
+    // the word should not contain 's or numbers and it's length should be < size of grid.
     var acceptCriteria = function(word) {
         var char_code;
         if(word.length > 15)
@@ -45,13 +51,20 @@ router.post('/create', function(req, res, next) {
         }
         return true;
     }
+
+    // get random list of words from dictionary
     grid_creator.getDictionaryWords(size + 10, acceptCriteria, function (words) {
+        
+        // try to fit longest words first, as they might fail if added later.
         words = grid_creator.sortWords(words);
+
+        // generate grid by chosing 10 words from given list.
         var response = grid_creator.generateGrid(words, size, 10);
         var grid = response['grid'];
         words = response['words'];
         var game = getGameObject(playerID, grid, words);
 
+        // save game object to db.
         db.insert(game, function() {
             res.send(200, {gameID: game.gameID});
             return;
@@ -66,19 +79,24 @@ router.post('/create', function(req, res, next) {
 router.post('/:gameID/start', function(req, res, next) {
     var missingParams = request_validator.missingParams(req, ['playerID', 'gameID'])
     
-    // request parameter missing.
+    // check if request parameter is missing.
     if(missingParams.length > 0) {
         res.send(400, {errorMessage: "Missing request parameter " + missingParams});
         return;
     }
     var playerID = req.param('playerID');
     var gameID = req.param('gameID');
+
+    // start game.
     var onSuccess =  function(game) {
+
+        // only admin can start the game.
         if(playerID !== game.admin){
             res.send(400, {errorMessage: "You are not creator of this game."});
             return;
         }
 
+        // number of players should be > 2 and < 5
         if(game.players.length < 2) {
             res.send(500, {errorMessage: "Not enough players to start the game."});
             return;
@@ -89,6 +107,7 @@ router.post('/:gameID/start', function(req, res, next) {
             return;
         }
 
+        // game should not have been started already.
         if(game.state !== 'CREATED') {
             res.send(500, {errorMessage: "Game already started."});
             return;
@@ -96,6 +115,8 @@ router.post('/:gameID/start', function(req, res, next) {
 
         // change game state as 'STARTED'.
         game.state = 'STARTED';
+
+        // update db.
         db.updateGameObject(game, function() {
             res.send(200, game);
             return;
@@ -111,6 +132,7 @@ router.post('/:gameID/start', function(req, res, next) {
     db.get(gameID, onSuccess, onFailure);
 });
 
+// create game object.
 function getGameObject(admin, grid, words) {
     var obj = {};
     obj.gameID = Date.now();

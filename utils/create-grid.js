@@ -1,23 +1,31 @@
 var fs = require('fs');
 var dictionary = require('./dictionary');
 
+// generate grid of size X size filled with given words. 
 var generateGrid = function(words, size, number_of_words) {
+    // get empty grid of size x size.
     var grid = createGrid(size);
     var words_added = 0;
     var words_used = [];
     var word;
+
+    // as words array is sorted, choose the longest word first.
     for(var i = 0; i < words.length; i++) {
         word = words[i];
+        // if this word can not be added, try next one.
         if(addWord(word, grid, size)) {
             words_added++;
             words_used.push(word);
+            // if all words have been added to grid
             if(words_added === number_of_words)
                 break;
         }
     }
+    // return actual grid and list of words used to create this grid.
     return {grid: fillRemainingPlaces(grid), words: words_used};
 }
 
+// add this word to grid.
 var addWord = function(word, grid, size) {
     // chose vertically or horizontally.
     var direction = randomInt(0, 2);
@@ -26,9 +34,12 @@ var addWord = function(word, grid, size) {
     // if word can not be added horizontally, try vertically.
     else if(addWordWD(1 - direction, word, grid, size))
         return true;
+
+    // if word can not be added to grid, return false.
     return false;
 }
 
+// add word to grid on this direction.
 var addWordWD = function(direction, word, grid, size) {
     var locationArray = new Array(size);
     var success = false;
@@ -38,6 +49,7 @@ var addWordWD = function(direction, word, grid, size) {
     locationArray[location] = 1;
     while(true) {
 
+        // if word was added to this row/column, return true.
         if(addWordWDL(location, direction, word, grid, size)) {
             success = true;
             break;
@@ -63,8 +75,12 @@ var addWordWD = function(direction, word, grid, size) {
     return success;
 }
 
+// add this word to grid on chosen row/column with given direction.
 var addWordWDL = function(location, direction, word, grid, size) {
-    var continuous = findCountinuousEmptySpace(location, direction, grid, size);
+
+    // find continuous empty spaces, in this row/column.
+    var continuous = findContinuousEmptySpace(location, direction, grid, size);
+    // check if word can fit in this row/column.
     if(word.length <= continuous['length']) {
         // right to left or left to right, top to bottom or bottom to top.
         if(randomInt(0, 2) === 0) {
@@ -88,9 +104,10 @@ var addWordWDL = function(location, direction, word, grid, size) {
     }
 }
 
-var findCountinuousEmptySpace = function(location, direction, grid, size) {
+var findContinuousEmptySpace = function(location, direction, grid, size) {
     var min_start = 0, max_end = size, max_count = 0;
     var count = 0, start = 0;
+
     for(var i = 0; i < size; i++) {
         if((direction === 0 && grid[location][i] === 0) 
             || (direction === 1 && grid[i][location] === 0)) {
@@ -125,18 +142,19 @@ var createGrid = function(size) {
     return grid;
 }
 
+// fill remaining places with random characters.
 var fillRemainingPlaces = function(grid) {
     var size = grid.length;
     for (var i = 0; i < size; i++) {
         for (var j = 0; j < size; j++) {
             if(grid[i][j] === 0)
-                // fill remaining place with random lower case characters.
                 grid[i][j] = String.fromCharCode(97 + randomInt(0, 26));
         }
     }
     return grid;
 }
 
+// sord words array so that longest words would be first.
 var sortWords = function(words) {
     var wordsObj = {};
     var wordsLen = [];
@@ -166,6 +184,7 @@ var toString = function(grid) {
     return str;
 }
 
+// get dictionary words and check if that can be accepted.
 var getDictionaryWords = function(n, canAcceptWord, callback) {
     var words = [], word;
     while(words.length < n) {

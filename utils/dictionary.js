@@ -23,10 +23,12 @@ stream.on('end', function(){
     size = words.length;
 });
 
+// get a random dictionay word.
 var getARandomWord = function() {
     return words[randomInt(0, size)];
 }
 
+// check if this word is valid dictionary word or not.
 var isDictionaryWord = function(word) {
     return words.indexOf(word) > -1;
 }
