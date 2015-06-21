@@ -13,7 +13,7 @@ router.post('/play', function(req, res, next) {
     var word = body['word'];
     var starting_location = body['starting-location'];
     var direction = body['direction'];
-
+    console.log("play with: " + body);
     db.get(gameID, function (game) {
         if(game.state !== 'STARTED') {
             res.send(400, {errorMessage: "Game is in " + game.state + " state."});
@@ -141,7 +141,7 @@ router.post('/join', function(req, res, next) {
             return;
         }
         if(game.state !== 'CREATED') {
-            res.send(500, {errorMessage: "Game has already started."});
+            res.send(400, {errorMessage: "Game is in " + game.state + " state."});
             return;
         }
         game.players.push(playerID);
